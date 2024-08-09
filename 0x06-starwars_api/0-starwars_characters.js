@@ -1,10 +1,10 @@
 #!/usr/local/bin/node
 const request = require('request');
-const API_URL = 'https://swapi-api.alx-tools.com/api';
+const API_URL = 'https://swapi-api.alx-tools.com/api/films/';
 
 if (process.argv.length > 2) {
   const filmId = process.argv[2];
-  request(`${API_URL}/films/${filmId}/`, (err, response, body) => {
+  request(`${API_URL}${filmId}/`, (err, response, body) => {
     if (err) {
       console.error('Error:', err);
       return;
@@ -17,23 +17,29 @@ if (process.argv.length > 2) {
 
     try {
       const filmData = JSON.parse(body);
-      const charactersURL = filmData.characters;
-      const charactersName = charactersURL.map(
-        url => new Promise((resolve, reject) => {
-          request(url, (promiseErr, _, charactersReqBody) => {
-            if (promiseErr) {
-              reject(promiseErr);
+      const characterURLs = filmData.characters;
+      const characterPromises = characterURLs.map(url =>
+        new Promise((resolve, reject) => {
+          request(url, (err, _, characterBody) => {
+            if (err) {
+              reject(err);
+              return;
             }
-            resolve(JSON.parse(charactersReqBody).name);
+            try {
+              const characterData = JSON.parse(characterBody);
+              resolve(characterData.name);
+            } catch (parseErr) {
+              reject(parseErr);
+            }
           });
         })
       );
 
-      Promise.all(charactersName)
+      Promise.all(characterPromises)
         .then(names => console.log(names.join('\n')))
-        .catch(allErr => console.error(allErr));
-    } catch (parseError) {
-      console.error('Failed to parse JSON:', parseError.message);
+        .catch(err => console.error('Error fetching character names:', err));
+    } catch (parseErr) {
+      console.error('Failed to parse film data:', parseErr.message);
     }
   });
 }
