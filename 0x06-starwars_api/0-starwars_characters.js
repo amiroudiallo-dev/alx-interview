@@ -1,4 +1,4 @@
-#!/usr/local/bin/node
+#!/usr/bin/node
 const request = require('request');
 const API_URL = 'https://swapi-api.alx-tools.com/api/films/';
 
