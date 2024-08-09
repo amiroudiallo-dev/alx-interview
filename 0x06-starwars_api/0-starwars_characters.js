@@ -6,12 +6,12 @@ if (process.argv.length > 2) {
   const filmId = process.argv[2];
   request(`${API_URL}/films/${filmId}/`, (err, response, body) => {
     if (err) {
-      console.log('Error:', err);
+      console.error('Error:', err);
       return;
     }
 
     if (response.statusCode !== 200) {
-      console.log(`Failed to fetch data. Status code: ${response.statusCode}`);
+      console.error(`Failed to fetch data. Status code: ${response.statusCode}`);
       return;
     }
 
@@ -31,9 +31,9 @@ if (process.argv.length > 2) {
 
       Promise.all(charactersName)
         .then(names => console.log(names.join('\n')))
-        .catch(allErr => console.log(allErr));
+        .catch(allErr => console.error(allErr));
     } catch (parseError) {
-      console.log('Failed to parse JSON:', parseError.message);
+      console.error('Failed to parse JSON:', parseError.message);
     }
   });
 }
